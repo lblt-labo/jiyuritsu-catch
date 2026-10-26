@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>自由律をつかまえる</title>
+<meta name="description" content="ただよう言葉から自由律俳句を詠むアプリ。2〜3個の言葉を入れると、句が3つ浮かびます。">
+<meta name="theme-color" content="#0F3B5C">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="自由律をつかまえる">
+<meta property="og:description" content="ただよう言葉から自由律俳句を詠むアプリ">
+<meta property="og:image" content="./ogp.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="自由律をつかまえる">
+<meta name="twitter:description" content="ただよう言葉から自由律俳句を詠むアプリ">
+<meta name="twitter:image" content="./ogp.png">
+<style>
+:root{--ink:#1B2430;--sub:#44505C;--paper:#EAEFF2;--card:#FBFCFD;--main:#0F4C75;--stamp:#B3470B;--line:#B7C2CB}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic",Meiryo,sans-serif;line-height:1.7;padding-bottom:env(safe-area-inset-bottom)}
+.serif{font-family:"Yu Mincho","Hiragino Mincho ProN","Noto Serif JP",serif}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:active{transform:scale(.96)}
+:focus-visible{outline:3px solid var(--main);outline-offset:2px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:calc(18px + env(safe-area-inset-top)) 16px 14px;border-bottom:2px solid var(--ink);background:var(--card)}
+h1{margin:0;font-size:1.55rem;letter-spacing:.08em;line-height:1.3}
+.subt{margin:4px 0 0;font-size:.85rem;color:var(--sub)}
+.round{flex:none;width:44px;height:44px;border-radius:50%;border:2px solid var(--ink);background:var(--card);font-weight:700;font-size:1.2rem}
+main{max-width:640px;margin:0 auto;padding:18px 16px}
+section{margin-bottom:28px}
+h2{font-size:1.05rem;margin:0 0 10px;padding-left:10px;border-left:6px solid var(--main)}
+label{display:block;font-size:.9rem;margin-bottom:6px}
+.inp{width:100%;min-height:48px;padding:10px 12px;border:2px solid var(--ink);border-radius:6px;background:#fff;font-size:1rem}
+.btn{min-height:48px;min-width:44px;padding:10px 20px;border:2px solid var(--main);border-radius:6px;background:var(--main);color:#fff;font-weight:700;font-size:1rem}
+.btn.ghost{background:var(--card);color:var(--main)}
+.btn.block{width:100%;margin-top:12px;font-size:1.1rem;letter-spacing:.2em}
+.note{font-size:.82rem;color:var(--sub);margin:6px 0 0}
+#results{display:flex;flex-direction:row-reverse;flex-wrap:wrap;justify-content:center;gap:16px;min-height:120px;margin-top:18px;padding:18px 8px;background:var(--card);border:1px dashed var(--line);border-radius:8px}
+.empty{align-self:center;color:var(--sub);font-size:.9rem;text-align:center;width:100%}
+.wrap{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;animation:in .6s ease both}
+@keyframes in{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+.card{writing-mode:vertical-rl;font-family:"Yu Mincho","Hiragino Mincho ProN","Noto Serif JP",serif;font-size:1.35rem;line-height:1.9;letter-spacing:.14em;padding:16px 12px;min-width:56px;min-height:56px;max-height:17em;background:#fff;border:2px solid var(--ink);border-radius:3px;text-align:start}
+.card.pop{animation:pop .4s ease}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.12) rotate(-2deg)}100%{transform:scale(1)}}
+.lab{font-size:.8rem;color:var(--sub);min-height:1.4em}
+.done .card{background:#E3EEF5;border-color:var(--main)}
+.done .lab{color:var(--main);font-weight:700}
+.stamp{position:absolute;top:-8px;right:-8px;width:40px;height:40px;display:grid;place-items:center;border:2px solid var(--stamp);color:var(--stamp);background:#fff;font:700 1.3rem "Yu Mincho","Hiragino Mincho ProN",serif;transform:rotate(-8deg);animation:st .35s ease-out}
+@keyframes st{from{transform:scale(2.6) rotate(-8deg);opacity:0}to{transform:scale(1) rotate(-8deg);opacity:1}}
+.chead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.chead h2{margin:0}
+#list{list-style:none;margin:0;padding:0}
+#list li{display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:10px;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--main);border-radius:6px}
+.hk{flex:1;min-width:0}
+.hk b{display:block;font-weight:400;font-size:1.15rem;letter-spacing:.06em;word-break:break-all}
+.hk small{color:var(--sub);font-size:.75rem}
+.del{flex:none;min-width:44px;min-height:44px;padding:0 10px;border:2px solid var(--stamp);border-radius:6px;background:#fff;color:var(--stamp);font-weight:700;font-size:.85rem}
+.modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(27,36,48,.6)}
+.modal[hidden]{display:none}
+.sheet{width:100%;max-width:440px;max-height:90vh;overflow:auto;padding:20px;background:var(--card);border:2px solid var(--ink);border-radius:10px}
+.sheet h3{margin:0 0 10px;font-size:1.15rem}
+.sheet ol,.sheet ul{padding-left:1.3em;margin:0 0 12px}
+.row2{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+#lock{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;background:var(--ink);color:#fff;text-align:center}
+#lock[hidden]{display:none}
+#lock .inp{max-width:260px;text-align:center;letter-spacing:.4em;font-size:1.3rem;color:var(--ink)}
+#lockMsg{min-height:1.6em;font-weight:700;color:#FFD9B8}
+.shake{animation:sh .35s}
+@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,30px);opacity:0;pointer-events:none;z-index:70;max-width:90vw;padding:10px 18px;background:var(--ink);color:#fff;border-radius:24px;font-size:.9rem;transition:.3s}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#install{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:60;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px;background:var(--card);border:2px solid var(--main);border-radius:10px;transform:translateY(160%);transition:transform .5s ease}
+#install.show{transform:none}
+#install p{flex:1;min-width:160px;margin:0;font-size:.9rem}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <div>
+    <h1 class="serif">自由律をつかまえる</h1>
+    <p class="subt">ただよう言葉から自由律俳句を詠むアプリ</p>
+  </div>
+  <button type="button" class="round" id="helpBtn" aria-label="使い方・ヘルプ">？</button>
+</header>
+<main>
+  <section aria-labelledby="h-make">
+    <h2 id="h-make">言葉をいれる</h2>
+    <label for="words">ことばを2〜3個（空白で区切ります）</label>
+    <input class="inp" id="words" type="text" autocomplete="off" placeholder="例：電車 ため息 月曜日">
+    <button type="button" class="btn block" id="makeBtn">句を詠む</button>
+    <p class="note" id="msg" role="status"></p>
+    <div id="results" aria-live="polite"><p class="empty">ここに句が3つ浮かびます。</p></div>
+  </section>
+  <section aria-labelledby="h-book">
+    <div class="chead">
+      <h2 id="h-book">句集 <span id="count"></span></h2>
+      <button type="button" class="btn ghost" id="setBtn">パスコード設定</button>
+    </div>
+    <ul id="list"></ul>
+  </section>
+</main>
+</div>
+
+<div class="modal" id="helpModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="helpT">
+    <h3 id="helpT">使い方</h3>
+    <ol>
+      <li>ことばを2〜3個、空白で区切って入れます。</li>
+      <li>「句を詠む」を押すと、句が3つ浮かびます。何度でも詠めます。</li>
+      <li>気に入った句をタップすると「捕」の印が押され、句集につかまります。</li>
+      <li>句集の「削除」で、いらない句をはずせます。</li>
+    </ol>
+    <p class="note">句はこの端末の中だけに保存されます。「パスコード設定」で、数字の鍵をかけることもできます。</p>
+    <div class="row2"><button type="button" class="btn" data-close>とじる</button></div>
+  </div>
+</div>
+
+<div class="modal" id="setModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="setT">
+    <h3 id="setT">パスコード設定</h3>
+    <p id="setState" class="note" style="margin:0 0 10px"></p>
+    <label for="newCode">数字4〜8けた</label>
+    <input class="inp" id="newCode" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off">
+    <p class="note" id="setMsg" role="status"></p>
+    <div class="row2">
+      <button type="button" class="btn" id="setSave">設定する</button>
+      <button type="button" class="btn ghost" id="setClear" hidden>解除する</button>
+      <button type="button" class="btn ghost" data-close>とじる</button>
+    </div>
+    <p class="note">忘れると開けなくなります。数字は忘れないようにしてください。</p>
+  </div>
+</div>
+
+<div id="lock" hidden role="dialog" aria-modal="true" aria-labelledby="lockT">
+  <h2 id="lockT" class="serif" style="border:0;padding:0;font-size:1.4rem">自由律をつかまえる</h2>
+  <p style="margin:0">パスコードを入れてください</p>
+  <input class="inp" id="lockIn" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off" aria-label="パスコード">
+  <button type="button" class="btn" id="lockBtn" style="background:#fff;color:var(--ink);border-color:#fff">ひらく</button>
+  <p id="lockMsg" role="alert"></p>
+</div>
+
+<div id="install" role="region" aria-label="ホーム画面に追加">
+  <p>ホーム画面に追加すると、すぐ開けます。</p>
+  <button type="button" class="btn" id="instYes">追加する</button>
+  <button type="button" class="btn ghost" id="instNo">あとで</button>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<footer style="text-align: center; font-size: 0.75rem; color: #888; margin-top: 3rem; padding: 1rem 0.5rem; line-height: 1.5;">
+  <p style="margin-bottom: 0.5rem;">【ご利用について】</p>
+  <p style="margin-bottom: 0.5rem;">本アプリの利用に伴うトラブルやデータ損失等について、開発者は一切の責任を負いかねます。</p>
+  <p style="margin-bottom: 0.5rem;">ご意見・不具合のご報告は X（<a href="https://x.com/lblt_labo" target="_blank" rel="noopener" style="color: #666; text-decoration: underline;">@lblt_labo</a>）までお願いいたします。</p>
+  <p style="margin-top: 0.5rem;"><a href="https://ofuse.me/lbltlabo/letter" target="_blank" rel="noopener noreferrer" style="color: #666; text-decoration: underline;">☕️ 開発者を応援する / メッセージを送る</a></p>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var KH = 'jiyuritsu_haiku_v1', KP = 'jiyuritsu_pass_v1', mem = {};
+
+  function load(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return mem[k] !== undefined ? mem[k] : d; } }
+  function save(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { mem[k] = v; return false; } }
+  function del(k) { try { localStorage.removeItem(k); } catch (e) {} delete mem[k]; }
+  function hash(s) { var h = 5381, t = 'jh:' + s; for (var i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0; return String(h); }
+  function loadList() {
+    try { var a = JSON.parse(load(KH, '[]')); return Array.isArray(a) ? a.filter(function (x) { return x && typeof x.t === 'string'; }) : []; }
+    catch (e) { return []; }
+  }
+  function saveList(a) { return save(KH, JSON.stringify(a)); }
+
+  var tt;
+  function toast(m) {
+    var t = $('toast'); if (!t) return;
+    t.textContent = m; t.classList.add('show');
+    clearTimeout(tt); tt = setTimeout(function () { t.classList.remove('show'); }, 2200);
+  }
+
+  /* ---- 辞書データ ---- */
+  var VERB = ['ほどけていく','黙っている','つまずいている','しずかに冷める','言いそびれる','ひとりで歩く','影をのばす','ぬるくなる','ゆっくり溶ける','ふり向かない','息をひそめる','傘をたたむ','返事をしない','あくびをする','はぐれてしまう','まだ眠っている','こぼれ落ちる','そっと遠のく','数をかぞえている','何も言わない'];
+  var SCENE = ['夕暮れ','雨あがり','始発前','残業の窓','日曜の午後','駅のホーム','湯気のむこう','風のない日','月曜の朝','終電のあと','閉店まぎわ','洗濯日和'];
+  var TIME = ['夕方','真夜中','朝いち','昼さがり','帰り道','休みの前の日','梅雨のはじめ','冬の入口'];
+  var T2 = [
+    '{a}を持て余して{b}になる','{a}と{b}のあいだで{v}','{s}、{a}が{b}を追い越していく','{a}の夜は{b}が{v}',
+    '{b}に{v}ほど{a}がちかい','{a}もうつむいて{b}を待つ','{t}の{a}、{b}はまだ{v}','{a}を見ていたら{b}になっていた',
+    'どうしても{a}と{b}は{v}','{a}ごしに{b}をみている{s}','{a}の{b}をひとり見送る','{s}{a}が{b}にもどれない',
+    '{a}だけ置いて{b}は{v}','{b}の隣で{a}が{v}','{a}があって{b}がなくて{s}','{t}、{a}を{b}にたとえて{v}'
+  ];
+  var T3 = [
+    '{a}と{b}と{c}、{v}','{a}の隣に{b}、{c}はまだ{v}','{s}、{a}{b}{c}と並んで{v}','{a}が{b}にかわる{c}の{t}',
+    '{c}を抱えて{a}と{b}を見ている','{a}も{b}も{c}も{v}{s}','{t}の{a}、{b}の影に{c}','{c}のまま{a}は{b}へ{v}'
+  ];
+
+  function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function parseWords(s) { return String(s || '').split(/[\s,、，。.・　]+/).filter(Boolean); }
+
+  function compose(words) {
+    var w = shuffle(words), n = w.length;
+    var tpl = (n >= 3 && Math.random() < 0.8) ? pick(T3) : pick(T2);
+    var map = { a: w[0], b: w[1], c: w[2] || w[0], v: pick(VERB), s: pick(SCENE), t: pick(TIME) };
+    return tpl.replace(/\{(a|b|c|v|s|t)\}/g, function (_, k) { return map[k]; });
+  }
+  function makeThree(words) {
+    var out = [], tries = 0;
+    while (out.length < 3 && tries < 80) { tries++; var h = compose(words); if (out.indexOf(h) < 0) out.push(h); }
+    return out;
+  }
+
+  /* ---- 結果表示 ---- */
+  var current = [], currentWords = [];
+  function renderResults() {
+    var box = $('results'); if (!box) return;
+    box.innerHTML = '';
+    var saved = loadList().map(function (x) { return x.t; });
+    current.forEach(function (text, i) {
+      var wrap = document.createElement('div'); wrap.className = 'wrap'; wrap.style.animationDelay = (i * 0.18) + 's';
+      var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'card'; btn.textContent = text;
+      btn.setAttribute('aria-label', text + '　タップでつかまえる');
+      var lab = document.createElement('span'); lab.className = 'lab';
+      function mark() {
+        wrap.classList.add('done'); lab.textContent = 'つかまえた ✓';
+        if (!wrap.querySelector('.stamp')) { var s = document.createElement('span'); s.className = 'stamp'; s.setAttribute('aria-hidden', 'true'); s.textContent = '捕'; wrap.appendChild(s); }
+      }
+      if (saved.indexOf(text) >= 0) { mark(); } else { lab.textContent = 'タップでつかまえる'; }
+      btn.addEventListener('click', function () {
+        btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop');
+        capture(text, mark);
+      });
+      wrap.appendChild(btn); wrap.appendChild(lab); box.appendChild(wrap);
+    });
+  }
+
+  function capture(text, mark) {
+    var list = loadList();
+    if (list.some(function (x) { return x.t === text; })) { toast('この句はもう句集にあります'); mark(); return; }
+    list.unshift({ id: Date.now(), t: text, w: currentWords.join('・'), d: new Date().toLocaleDateString('ja-JP') });
+    if (!saveList(list)) toast('保存できませんでした。このまま開いている間だけ残ります');
+    else toast('つかまえました');
+    mark(); renderList();
+    try { if (navigator.vibrate) navigator.vibrate(30); } catch (e) {}
+  }
+
+  function renderList() {
+    var ul = $('list'), cnt = $('count'); if (!ul) return;
+    var list = loadList(); ul.innerHTML = '';
+    if (cnt) cnt.textContent = '（' + list.length + '句）';
+    if (!list.length) {
+      var li0 = document.createElement('li'); li0.style.display = 'block'; li0.style.borderLeftColor = 'var(--line)';
+      li0.textContent = 'まだ句はありません。気に入った句をタップして、つかまえましょう。';
+      ul.appendChild(li0); return;
+    }
+    list.forEach(function (x) {
+      var li = document.createElement('li');
+      var d = document.createElement('div'); d.className = 'hk';
+      var b = document.createElement('b'); b.className = 'serif'; b.textContent = x.t;
+      var sm = document.createElement('small'); sm.textContent = (x.d || '') + (x.w ? '　もとの言葉：' + x.w : '');
+      d.appendChild(b); d.appendChild(sm);
+      var bt = document.createElement('button'); bt.type = 'button'; bt.className = 'del'; bt.textContent = '削除';
+      bt.setAttribute('aria-label', '「' + x.t + '」を削除');
+      bt.addEventListener('click', function () {
+        var ok = true; try { ok = window.confirm('この句を句集から削除しますか？\n' + x.t); } catch (e) {}
+        if (!ok) return;
+        saveList(loadList().filter(function (y) { return y.id !== x.id; }));
+        renderList(); renderResults(); toast('削除しました');
+      });
+      li.appendChild(d); li.appendChild(bt); ul.appendChild(li);
+    });
+  }
+
+  function make() {
+    var inp = $('words'), msg = $('msg'); if (!inp) return;
+    var w = parseWords(inp.value);
+    if (w.length < 2) { if (msg) msg.textContent = 'ことばを2つ以上、空白で区切って入れてください。'; inp.focus(); return; }
+    if (w.length > 3) { w = w.slice(0, 3); if (msg) msg.textContent = '3つまでなので、最初の3つで詠みました。'; }
+    else if (msg) msg.textContent = '';
+    currentWords = w; current = makeThree(w); renderResults();
+  }
+  var mk = $('makeBtn'); if (mk) mk.addEventListener('click', make);
+  var wi = $('words'); if (wi) wi.addEventListener('keydown', function (e) { if (e.key === 'Enter') make(); });
+
+  /* ---- モーダル ---- */
+  var lastFocus = null;
+  function openM(id) { var m = $(id); if (!m) return; lastFocus = document.activeElement; m.hidden = false; var f = m.querySelector('button,input'); if (f) f.focus(); }
+  function closeM(m) { if (!m) return; m.hidden = true; try { if (lastFocus) lastFocus.focus(); } catch (e) {} }
+  ['helpModal', 'setModal'].forEach(function (id) {
+    var m = $(id); if (!m) return;
+    m.addEventListener('click', function (e) { if (e.target === m) closeM(m); });
+    Array.prototype.forEach.call(m.querySelectorAll('[data-close]'), function (b) { b.addEventListener('click', function () { closeM(m); }); });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { ['helpModal', 'setModal'].forEach(function (id) { var m = $(id); if (m && !m.hidden) closeM(m); }); }
+  });
+  var hb = $('helpBtn'); if (hb) hb.addEventListener('click', function () { openM('helpModal'); });
+
+  /* ---- パスコード ---- */
+  function hasCode() { return !!load(KP, ''); }
+  function setLockView() {
+    var s = $('setState'), c = $('setClear'), sv = $('setSave');
+    if (s) s.textContent = hasCode() ? '現在：パスコードロックあり' : '現在：パスコードロックなし（だれでも開けます）';
+    if (c) c.hidden = !hasCode();
+    if (sv) sv.textContent = hasCode() ? '変更する' : '設定する';
+  }
+  var sb = $('setBtn'); if (sb) sb.addEventListener('click', function () { var n = $('newCode'), m = $('setMsg'); if (n) n.value = ''; if (m) m.textContent = ''; setLockView(); openM('setModal'); });
+  var ss = $('setSave');
+  if (ss) ss.addEventListener('click', function () {
+    var n = $('newCode'), m = $('setMsg'); if (!n || !m) return;
+    if (!/^[0-9]{4,8}$/.test(n.value)) { m.textContent = '数字だけで4〜8けたにしてください。'; n.focus(); return; }
+    save(KP, hash(n.value)); n.value = ''; m.textContent = '設定しました。次に開くときから鍵がかかります。'; setLockView(); toast('パスコードを設定しました');
+  });
+  var sc = $('setClear');
+  if (sc) sc.addEventListener('click', function () { del(KP); var m = $('setMsg'); if (m) m.textContent = '解除しました。'; setLockView(); toast('パスコードを解除しました'); });
+
+  var lock = $('lock'), app = $('app');
+  function showLock() {
+    if (!lock) return; lock.hidden = false;
+    try { if (app) app.setAttribute('inert', ''); } catch (e) {}
+    var i = $('lockIn'); if (i) { i.value = ''; i.focus(); }
+  }
+  function tryUnlock() {
+    var i = $('lockIn'), m = $('lockMsg'); if (!i || !m) return;
+    if (hash(i.value) === load(KP, '')) {
+      lock.hidden = true; m.textContent = '';
+      try { if (app) app.removeAttribute('inert'); } catch (e) {}
+    } else {
+      m.textContent = '数字がちがいます。もう一度どうぞ。'; i.value = '';
+      i.classList.remove('shake'); void i.offsetWidth; i.classList.add('shake'); i.focus();
+    }
+  }
+  var lb = $('lockBtn'); if (lb) lb.addEventListener('click', tryUnlock);
+  var li = $('lockIn'); if (li) li.addEventListener('keydown', function (e) { if (e.key === 'Enter') tryUnlock(); });
+  if (hasCode()) showLock();
+
+  /* ---- ホーム画面に追加 ---- */
+  var deferred = null, ins = $('install');
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault(); deferred = e;
+    setTimeout(function () { if (ins) ins.classList.add('show'); }, 1500);
+  });
+  var iy = $('instYes');
+  if (iy) iy.addEventListener('click', function () {
+    if (!deferred) return;
+    try { deferred.prompt(); if (deferred.userChoice) deferred.userChoice.then(function () { deferred = null; }); } catch (e) {}
+    if (ins) ins.classList.remove('show');
+  });
+  var inn = $('instNo'); if (inn) inn.addEventListener('click', function () { if (ins) ins.classList.remove('show'); });
+  window.addEventListener('appinstalled', function () { if (ins) ins.classList.remove('show'); });
+
+  renderList();
+
+  try {
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(function () {});
+  } catch (e) {}
+});
+</script>
+</body>
+</html>

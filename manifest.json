@@ -1,0 +1,16 @@
+{
+  "name": "自由律をつかまえる",
+  "short_name": "自由律をつかまえる",
+  "description": "ただよう言葉から自由律俳句を詠むアプリ",
+  "lang": "ja",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#EAEFF2",
+  "theme_color": "#0F3B5C",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
