@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>自由律をつかまえる</title>
 <meta name="description" content="ただよう言葉から自由律俳句を詠むアプリ。2〜3個の言葉を入れると、句が3つ浮かびます。">
-<meta name="theme-color" content="#0F3B5C">
+<meta name="theme-color" content="#2A2623">
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" href="./icon-192.png">
 <link rel="apple-touch-icon" href="./icon-192.png">
@@ -18,16 +18,17 @@
 <meta name="twitter:description" content="ただよう言葉から自由律俳句を詠むアプリ">
 <meta name="twitter:image" content="./ogp.png">
 <style>
-:root{--ink:#1B2430;--sub:#44505C;--paper:#EAEFF2;--card:#FBFCFD;--main:#0F4C75;--stamp:#B3470B;--line:#B7C2CB}
+:root{--ink:#2A2623;--sub:#5A4F47;--paper:#F4EEE0;--card:#FBF7EC;--main:#2A2623;--stamp:#B8321F;--line:#CBBDA2;--ai:#274A6B}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic",Meiryo,sans-serif;line-height:1.7;padding-bottom:env(safe-area-inset-bottom)}
-.serif{font-family:"Yu Mincho","Hiragino Mincho ProN","Noto Serif JP",serif}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"UD Digi Kyokasho NP-R","BIZ UDPMincho","BIZ UDMincho","UDMincho","Yu Mincho","Hiragino Mincho ProN","Noto Serif JP",serif;line-height:1.8;padding-bottom:env(safe-area-inset-bottom)}
+.serif{font-family:inherit}
 button,input{font:inherit;color:inherit}
 button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 button:active{transform:scale(.96)}
-:focus-visible{outline:3px solid var(--main);outline-offset:2px}
-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:calc(18px + env(safe-area-inset-top)) 16px 14px;border-bottom:2px solid var(--ink);background:var(--card)}
+:focus-visible{outline:3px solid var(--ai);outline-offset:2px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:calc(18px + env(safe-area-inset-top)) 16px 14px;border-bottom:3px double var(--ink);background:var(--card)}
+h1::before{content:"";display:inline-block;width:.45em;height:.45em;margin-right:.45em;background:var(--stamp);border-radius:1px;vertical-align:.1em}
 h1{margin:0;font-size:1.55rem;letter-spacing:.08em;line-height:1.3}
 .subt{margin:4px 0 0;font-size:.85rem;color:var(--sub)}
 .round{flex:none;width:44px;height:44px;border-radius:50%;border:2px solid var(--ink);background:var(--card);font-weight:700;font-size:1.2rem}
@@ -35,7 +36,7 @@ main{max-width:640px;margin:0 auto;padding:18px 16px}
 section{margin-bottom:28px}
 h2{font-size:1.05rem;margin:0 0 10px;padding-left:10px;border-left:6px solid var(--main)}
 label{display:block;font-size:.9rem;margin-bottom:6px}
-.inp{width:100%;min-height:48px;padding:10px 12px;border:2px solid var(--ink);border-radius:6px;background:#fff;font-size:1rem}
+.inp{width:100%;min-height:48px;padding:10px 12px;border:2px solid var(--ink);border-radius:6px;background:#FFFDF6;font-size:1rem}
 .btn{min-height:48px;min-width:44px;padding:10px 20px;border:2px solid var(--main);border-radius:6px;background:var(--main);color:#fff;font-weight:700;font-size:1rem}
 .btn.ghost{background:var(--card);color:var(--main)}
 .btn.block{width:100%;margin-top:12px;font-size:1.1rem;letter-spacing:.2em}
@@ -44,37 +45,37 @@ label{display:block;font-size:.9rem;margin-bottom:6px}
 .empty{align-self:center;color:var(--sub);font-size:.9rem;text-align:center;width:100%}
 .wrap{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;animation:in .6s ease both}
 @keyframes in{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
-.card{writing-mode:vertical-rl;font-family:"Yu Mincho","Hiragino Mincho ProN","Noto Serif JP",serif;font-size:1.35rem;line-height:1.9;letter-spacing:.14em;padding:16px 12px;min-width:56px;min-height:56px;max-height:17em;background:#fff;border:2px solid var(--ink);border-radius:3px;text-align:start}
+.card,.tz{position:relative;writing-mode:vertical-rl;font-family:inherit;font-size:1.35rem;line-height:2;letter-spacing:.16em;padding:34px 14px 18px;min-width:56px;min-height:56px;max-height:18em;background:linear-gradient(90deg,#FBF7EC,#F3EAD3);border:1px solid #BCAA88;border-top:4px solid var(--stamp);border-radius:1px;box-shadow:2px 3px 0 rgba(42,38,35,.18);text-align:start;color:var(--ink)}
+.card::before,.tz::before{content:"";position:absolute;top:10px;left:50%;width:9px;height:9px;margin-left:-4.5px;border:2px solid #BCAA88;border-radius:50%;background:var(--paper)}
 .card.pop{animation:pop .4s ease}
 @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.12) rotate(-2deg)}100%{transform:scale(1)}}
 .lab{font-size:.8rem;color:var(--sub);min-height:1.4em}
-.done .card{background:#E3EEF5;border-color:var(--main)}
-.done .lab{color:var(--main);font-weight:700}
-.stamp{position:absolute;top:-8px;right:-8px;width:40px;height:40px;display:grid;place-items:center;border:2px solid var(--stamp);color:var(--stamp);background:#fff;font:700 1.3rem "Yu Mincho","Hiragino Mincho ProN",serif;transform:rotate(-8deg);animation:st .35s ease-out}
-@keyframes st{from{transform:scale(2.6) rotate(-8deg);opacity:0}to{transform:scale(1) rotate(-8deg);opacity:1}}
+.done .card{background:linear-gradient(90deg,#F6EEDC,#EADFC2);border-color:var(--stamp)}
+.done .lab{color:var(--stamp);font-weight:700}
+.stamp{position:absolute;left:-10px;bottom:34px;width:34px;height:34px;display:grid;place-items:center;background:var(--stamp);color:#FBF7EC;box-shadow:inset 0 0 0 2px #FBF7EC,0 0 0 1px var(--stamp);border-radius:3px;font:700 1.15rem "BIZ UDPMincho","Yu Mincho","Hiragino Mincho ProN",serif;transform:rotate(-6deg);animation:st .35s ease-out}
+@keyframes st{from{transform:scale(2.4) rotate(-6deg);opacity:0}to{transform:scale(1) rotate(-6deg);opacity:1}}
 .chead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
 .chead h2{margin:0}
-#list{list-style:none;margin:0;padding:0}
-#list li{display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:10px;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--main);border-radius:6px}
-.hk{flex:1;min-width:0}
-.hk b{display:block;font-weight:400;font-size:1.15rem;letter-spacing:.06em;word-break:break-all}
-.hk small{color:var(--sub);font-size:.75rem}
-.del{flex:none;min-width:44px;min-height:44px;padding:0 10px;border:2px solid var(--stamp);border-radius:6px;background:#fff;color:var(--stamp);font-weight:700;font-size:.85rem}
-.modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(27,36,48,.6)}
+#list{list-style:none;margin:0;padding:12px 8px;display:flex;direction:rtl;gap:18px;overflow-x:auto;-webkit-overflow-scrolling:touch;background:var(--card);border:1px solid var(--line);border-radius:6px}
+#list li{direction:ltr;flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px}
+.dt{font-size:.72rem;color:var(--sub)}
+.del{min-width:44px;min-height:44px;padding:0 10px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--sub);font-size:.8rem}
+.hint{font-size:.8rem;color:var(--sub);margin:6px 0 0}
+.modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(42,38,35,.6)}
 .modal[hidden]{display:none}
-.sheet{width:100%;max-width:440px;max-height:90vh;overflow:auto;padding:20px;background:var(--card);border:2px solid var(--ink);border-radius:10px}
+.sheet{width:100%;max-width:440px;max-height:90vh;overflow:auto;padding:20px;background:var(--card);border:2px solid var(--ink);border-radius:6px}
 .sheet h3{margin:0 0 10px;font-size:1.15rem}
 .sheet ol,.sheet ul{padding-left:1.3em;margin:0 0 12px}
 .row2{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 #lock{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;background:var(--ink);color:#fff;text-align:center}
 #lock[hidden]{display:none}
 #lock .inp{max-width:260px;text-align:center;letter-spacing:.4em;font-size:1.3rem;color:var(--ink)}
-#lockMsg{min-height:1.6em;font-weight:700;color:#FFD9B8}
+#lockMsg{min-height:1.6em;font-weight:700;color:#F5C6A8}
 .shake{animation:sh .35s}
 @keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
 #toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,30px);opacity:0;pointer-events:none;z-index:70;max-width:90vw;padding:10px 18px;background:var(--ink);color:#fff;border-radius:24px;font-size:.9rem;transition:.3s}
 #toast.show{opacity:1;transform:translate(-50%,0)}
-#install{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:60;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px;background:var(--card);border:2px solid var(--main);border-radius:10px;transform:translateY(160%);transition:transform .5s ease}
+#install{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:60;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px;background:var(--card);border:2px solid var(--ink);border-radius:6px;transform:translateY(160%);transition:transform .5s ease}
 #install.show{transform:none}
 #install p{flex:1;min-width:160px;margin:0;font-size:.9rem}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -104,6 +105,7 @@ label{display:block;font-size:.9rem;margin-bottom:6px}
       <button type="button" class="btn ghost" id="setBtn">パスコード設定</button>
     </div>
     <ul id="list"></ul>
+    <p class="hint">句集は横にスクロールできます。</p>
   </section>
 </main>
 </div>
@@ -114,7 +116,7 @@ label{display:block;font-size:.9rem;margin-bottom:6px}
     <ol>
       <li>ことばを2〜3個、空白で区切って入れます。</li>
       <li>「句を詠む」を押すと、句が3つ浮かびます。何度でも詠めます。</li>
-      <li>気に入った句をタップすると「捕」の印が押され、句集につかまります。</li>
+      <li>気に入った句をタップすると朱印が押され、句集につかまります。</li>
       <li>句集の「削除」で、いらない句をはずせます。</li>
     </ol>
     <p class="note">句はこの端末の中だけに保存されます。「パスコード設定」で、数字の鍵をかけることもできます。</p>
@@ -226,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var lab = document.createElement('span'); lab.className = 'lab';
       function mark() {
         wrap.classList.add('done'); lab.textContent = 'つかまえた ✓';
-        if (!wrap.querySelector('.stamp')) { var s = document.createElement('span'); s.className = 'stamp'; s.setAttribute('aria-hidden', 'true'); s.textContent = '捕'; wrap.appendChild(s); }
+        if (!wrap.querySelector('.stamp')) { var s = document.createElement('span'); s.className = 'stamp'; s.setAttribute('aria-hidden', 'true'); s.textContent = '句'; wrap.appendChild(s); }
       }
       if (saved.indexOf(text) >= 0) { mark(); } else { lab.textContent = 'タップでつかまえる'; }
       btn.addEventListener('click', function () {
@@ -252,16 +254,14 @@ document.addEventListener('DOMContentLoaded', function () {
     var list = loadList(); ul.innerHTML = '';
     if (cnt) cnt.textContent = '（' + list.length + '句）';
     if (!list.length) {
-      var li0 = document.createElement('li'); li0.style.display = 'block'; li0.style.borderLeftColor = 'var(--line)';
+      var li0 = document.createElement('li'); li0.style.flex = '1'; li0.style.alignItems = 'flex-start'; li0.style.color = 'var(--sub)';
       li0.textContent = 'まだ句はありません。気に入った句をタップして、つかまえましょう。';
       ul.appendChild(li0); return;
     }
     list.forEach(function (x) {
       var li = document.createElement('li');
-      var d = document.createElement('div'); d.className = 'hk';
-      var b = document.createElement('b'); b.className = 'serif'; b.textContent = x.t;
-      var sm = document.createElement('small'); sm.textContent = (x.d || '') + (x.w ? '　もとの言葉：' + x.w : '');
-      d.appendChild(b); d.appendChild(sm);
+      var tz = document.createElement('div'); tz.className = 'tz'; tz.textContent = x.t;
+      var dt = document.createElement('span'); dt.className = 'dt'; dt.textContent = x.d || '';
       var bt = document.createElement('button'); bt.type = 'button'; bt.className = 'del'; bt.textContent = '削除';
       bt.setAttribute('aria-label', '「' + x.t + '」を削除');
       bt.addEventListener('click', function () {
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function () {
         saveList(loadList().filter(function (y) { return y.id !== x.id; }));
         renderList(); renderResults(); toast('削除しました');
       });
-      li.appendChild(d); li.appendChild(bt); ul.appendChild(li);
+      li.appendChild(tz); li.appendChild(dt); li.appendChild(bt); ul.appendChild(li);
     });
   }
 
