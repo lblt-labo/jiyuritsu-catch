@@ -60,6 +60,9 @@ label{display:block;font-size:.9rem;margin-bottom:6px}
 #list li{direction:ltr;flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px}
 .dt{font-size:.72rem;color:var(--sub)}
 .del{min-width:44px;min-height:44px;padding:0 10px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--sub);font-size:.8rem}
+.share{min-width:44px;min-height:44px;padding:0 12px;border:1px solid var(--stamp);border-radius:6px;background:transparent;color:var(--stamp);font-size:.85rem;font-weight:700}
+.share::before{content:"";display:inline-block;width:.55em;height:.55em;margin-right:.4em;background:var(--stamp);border-radius:1px}
+.acts{display:flex;gap:8px}
 .hint{font-size:.8rem;color:var(--sub);margin:6px 0 0}
 .modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(42,38,35,.6)}
 .modal[hidden]{display:none}
@@ -117,6 +120,7 @@ label{display:block;font-size:.9rem;margin-bottom:6px}
       <li>ことばを2〜3個、空白で区切って入れます。</li>
       <li>「句を詠む」を押すと、句が3つ浮かびます。何度でも詠めます。</li>
       <li>気に入った句をタップすると朱印が押され、句集につかまります。</li>
+      <li>「共有」を押すと、Xなどに句を投稿できます。共有できない端末では、コピーされます。</li>
       <li>句集の「削除」で、いらない句をはずせます。</li>
     </ol>
     <p class="note">句はこの端末の中だけに保存されます。「パスコード設定」で、数字の鍵をかけることもできます。</p>
@@ -217,6 +221,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---- 結果表示 ---- */
   var current = [], currentWords = [];
+  /* ---- 共有 ---- */
+  var TAG = '#自由律をつかまえる';
+  function appUrl() { try { var u = location.href.split('#')[0]; return /^https?:/.test(u) ? u : ''; } catch (e) { return ''; } }
+  function copyText(t) {
+    try { if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t); } catch (e) {}
+    return new Promise(function (ok, ng) {
+      try {
+        var ta = document.createElement('textarea'); ta.value = t; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:-100px;opacity:0';
+        document.body.appendChild(ta); ta.select();
+        var r = document.execCommand('copy'); document.body.removeChild(ta); r ? ok() : ng();
+      } catch (e) { ng(e); }
+    });
+  }
+  function shareHaiku(h) {
+    var url = appUrl(), text = h + '\n' + TAG;
+    function fallback() {
+      copyText(text + (url ? '\n' + url : '')).then(function () { toast('コピーしました。SNSに貼りつけてください'); }, function () { toast('共有できませんでした。句を長押しでコピーしてください'); });
+    }
+    try {
+      if (navigator.share) {
+        var data = { text: text }; if (url) data.url = url;
+        navigator.share(data).catch(function (e) { if (!e || e.name !== 'AbortError') fallback(); });
+        return;
+      }
+    } catch (e) {}
+    fallback();
+  }
+
   function renderResults() {
     var box = $('results'); if (!box) return;
     box.innerHTML = '';
@@ -231,11 +263,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!wrap.querySelector('.stamp')) { var s = document.createElement('span'); s.className = 'stamp'; s.setAttribute('aria-hidden', 'true'); s.textContent = '句'; wrap.appendChild(s); }
       }
       if (saved.indexOf(text) >= 0) { mark(); } else { lab.textContent = 'タップでつかまえる'; }
+      var sh = document.createElement('button'); sh.type = 'button'; sh.className = 'share'; sh.textContent = '共有';
+      sh.setAttribute('aria-label', '「' + text + '」をSNSで共有');
+      sh.addEventListener('click', function () { shareHaiku(text); });
       btn.addEventListener('click', function () {
         btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop');
         capture(text, mark);
       });
-      wrap.appendChild(btn); wrap.appendChild(lab); box.appendChild(wrap);
+      wrap.appendChild(btn); wrap.appendChild(lab); wrap.appendChild(sh); box.appendChild(wrap);
     });
   }
 
@@ -270,7 +305,11 @@ document.addEventListener('DOMContentLoaded', function () {
         saveList(loadList().filter(function (y) { return y.id !== x.id; }));
         renderList(); renderResults(); toast('削除しました');
       });
-      li.appendChild(tz); li.appendChild(dt); li.appendChild(bt); ul.appendChild(li);
+      var sh = document.createElement('button'); sh.type = 'button'; sh.className = 'share'; sh.textContent = '共有';
+      sh.setAttribute('aria-label', '「' + x.t + '」をSNSで共有');
+      sh.addEventListener('click', function () { shareHaiku(x.t); });
+      var acts = document.createElement('div'); acts.className = 'acts'; acts.appendChild(sh); acts.appendChild(bt);
+      li.appendChild(tz); li.appendChild(dt); li.appendChild(acts); ul.appendChild(li);
     });
   }
 
