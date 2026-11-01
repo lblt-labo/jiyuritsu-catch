@@ -23,7 +23,7 @@
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:"UD Digi Kyokasho NP-R","BIZ UDPMincho","BIZ UDMincho","UDMincho","Yu Mincho","Hiragino Mincho ProN","Noto Serif JP",serif;line-height:1.8;padding-bottom:env(safe-area-inset-bottom)}
 .serif{font-family:inherit}
-button,input{font:inherit;color:inherit}
+button,input,textarea{font:inherit;color:inherit}
 button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 button:active{transform:scale(.96)}
 :focus-visible{outline:3px solid var(--ai);outline-offset:2px}
@@ -47,7 +47,7 @@ label{display:block;font-size:.9rem;margin-bottom:6px}
 @keyframes in{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
 .card,.tz{position:relative;writing-mode:vertical-rl;font-family:inherit;font-size:1.35rem;line-height:2;letter-spacing:.16em;padding:34px 14px 18px;min-width:56px;min-height:56px;max-height:18em;background:linear-gradient(90deg,#FBF7EC,#F3EAD3);border:1px solid #BCAA88;border-top:4px solid var(--stamp);border-radius:1px;box-shadow:2px 3px 0 rgba(42,38,35,.18);text-align:start;color:var(--ink)}
 .card::before,.tz::before{content:"";position:absolute;top:10px;left:50%;width:9px;height:9px;margin-left:-4.5px;border:2px solid #BCAA88;border-radius:50%;background:var(--paper)}
-.card.pop{animation:pop .4s ease}
+.card.pop,.tz.pop{animation:pop .4s ease}
 @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.12) rotate(-2deg)}100%{transform:scale(1)}}
 .lab{font-size:.8rem;color:var(--sub);min-height:1.4em}
 .done .card{background:linear-gradient(90deg,#F6EEDC,#EADFC2);border-color:var(--stamp)}
@@ -63,6 +63,8 @@ label{display:block;font-size:.9rem;margin-bottom:6px}
 .share{min-width:44px;min-height:44px;padding:0 12px;border:1px solid var(--stamp);border-radius:6px;background:transparent;color:var(--stamp);font-size:.85rem;font-weight:700}
 .share::before{content:"";display:inline-block;width:.55em;height:.55em;margin-right:.4em;background:var(--stamp);border-radius:1px}
 .acts{display:flex;gap:8px}
+.edit{min-width:64px;min-height:44px;padding:0 12px;border:1px solid var(--ink);border-radius:6px;background:transparent;color:var(--ink);font-size:.85rem;font-weight:700}
+.wrap .share{min-width:64px}
 .hint{font-size:.8rem;color:var(--sub);margin:6px 0 0}
 .modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(42,38,35,.6)}
 .modal[hidden]{display:none}
@@ -99,6 +101,7 @@ label{display:block;font-size:.9rem;margin-bottom:6px}
     <label for="words">ことばを2〜3個（空白で区切ります）</label>
     <input class="inp" id="words" type="text" autocomplete="off" placeholder="例：電車 ため息 月曜日">
     <button type="button" class="btn block" id="makeBtn">句を詠む</button>
+    <button type="button" class="btn ghost block" id="selfBtn" style="margin-top:10px;font-size:1rem">自分で一から詠む</button>
     <p class="note" id="msg" role="status"></p>
     <div id="results" aria-live="polite"><p class="empty">ここに句が3つ浮かびます。</p></div>
   </section>
@@ -120,11 +123,25 @@ label{display:block;font-size:.9rem;margin-bottom:6px}
       <li>ことばを2〜3個、空白で区切って入れます。</li>
       <li>「句を詠む」を押すと、句が3つ浮かびます。何度でも詠めます。</li>
       <li>気に入った句をタップすると朱印が押され、句集につかまります。</li>
+      <li>「編集」を押すと、浮かんだ句を自分の言葉に手直ししてから句集に入れられます。「自分で一から詠む」なら、まったく新しい句も入れられます。</li>
       <li>「共有」を押すと、Xなどに句を投稿できます。共有できない端末では、コピーされます。</li>
       <li>句集の「削除」で、いらない句をはずせます。</li>
     </ol>
     <p class="note">句はこの端末の中だけに保存されます。「パスコード設定」で、数字の鍵をかけることもできます。</p>
     <div class="row2"><button type="button" class="btn" data-close>とじる</button></div>
+  </div>
+</div>
+
+<div class="modal" id="editModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="editT">
+    <h3 id="editT">句を手直しする</h3>
+    <label for="editTa">好きなように書き換えてください</label>
+    <textarea class="inp" id="editTa" rows="3" maxlength="60" style="min-height:96px;resize:vertical;font-size:1.15rem;line-height:1.8"></textarea>
+    <p class="note" id="editMsg" role="status">60字まで。改行はなくなります。</p>
+    <div class="row2">
+      <button type="button" class="btn" id="editSave">この句を詠む（句集につかまえる）</button>
+      <button type="button" class="btn ghost" data-close>やめる</button>
+    </div>
   </div>
 </div>
 
@@ -266,21 +283,25 @@ document.addEventListener('DOMContentLoaded', function () {
       var sh = document.createElement('button'); sh.type = 'button'; sh.className = 'share'; sh.textContent = '共有';
       sh.setAttribute('aria-label', '「' + text + '」をSNSで共有');
       sh.addEventListener('click', function () { shareHaiku(text); });
+      var ed = document.createElement('button'); ed.type = 'button'; ed.className = 'edit'; ed.textContent = '✎ 編集';
+      ed.setAttribute('aria-label', '「' + text + '」を編集してつかまえる');
+      ed.addEventListener('click', function () { openEditor(text, '句を手直しする', mark, currentWords.join('・')); });
       btn.addEventListener('click', function () {
         btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop');
         capture(text, mark);
       });
-      wrap.appendChild(btn); wrap.appendChild(lab); wrap.appendChild(sh); box.appendChild(wrap);
+      wrap.appendChild(btn); wrap.appendChild(lab); wrap.appendChild(ed); wrap.appendChild(sh); box.appendChild(wrap);
     });
   }
 
-  function capture(text, mark) {
+  function capture(text, mark, wtxt) {
     var list = loadList();
     if (list.some(function (x) { return x.t === text; })) { toast('この句はもう句集にあります'); mark(); return; }
-    list.unshift({ id: Date.now(), t: text, w: currentWords.join('・'), d: new Date().toLocaleDateString('ja-JP') });
+    list.unshift({ id: Date.now(), t: text, w: (wtxt !== undefined ? wtxt : currentWords.join('・')), d: new Date().toLocaleDateString('ja-JP') });
     if (!saveList(list)) toast('保存できませんでした。このまま開いている間だけ残ります');
     else toast('つかまえました');
     mark(); renderList();
+    try { var f1 = $('list') && $('list').querySelector('.tz'); if (f1) f1.classList.add('pop'); } catch (e) {}
     try { if (navigator.vibrate) navigator.vibrate(30); } catch (e) {}
   }
 
@@ -326,17 +347,37 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---- モーダル ---- */
   var lastFocus = null;
-  function openM(id) { var m = $(id); if (!m) return; lastFocus = document.activeElement; m.hidden = false; var f = m.querySelector('button,input'); if (f) f.focus(); }
+  function openM(id) { var m = $(id); if (!m) return; lastFocus = document.activeElement; m.hidden = false; var f = m.querySelector('textarea,button,input'); if (f) f.focus(); }
   function closeM(m) { if (!m) return; m.hidden = true; try { if (lastFocus) lastFocus.focus(); } catch (e) {} }
-  ['helpModal', 'setModal'].forEach(function (id) {
+  ['helpModal', 'setModal', 'editModal'].forEach(function (id) {
     var m = $(id); if (!m) return;
     m.addEventListener('click', function (e) { if (e.target === m) closeM(m); });
     Array.prototype.forEach.call(m.querySelectorAll('[data-close]'), function (b) { b.addEventListener('click', function () { closeM(m); }); });
   });
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { ['helpModal', 'setModal'].forEach(function (id) { var m = $(id); if (m && !m.hidden) closeM(m); }); }
+    if (e.key === 'Escape') { ['helpModal', 'setModal', 'editModal'].forEach(function (id) { var m = $(id); if (m && !m.hidden) closeM(m); }); }
   });
   var hb = $('helpBtn'); if (hb) hb.addEventListener('click', function () { openM('helpModal'); });
+
+  /* ---- 編集・手入力 ---- */
+  var src = { text: '', mark: null, w: '' };
+  function openEditor(text, title, mark, w) {
+    var ta = $('editTa'), t = $('editT'), m = $('editMsg'); if (!ta) return;
+    src = { text: text, mark: mark || null, w: w };
+    if (t) t.textContent = title; if (m) m.textContent = '60字まで。改行はなくなります。';
+    ta.value = text; openM('editModal');
+    try { ta.setSelectionRange(ta.value.length, ta.value.length); } catch (e) {}
+  }
+  var esv = $('editSave');
+  if (esv) esv.addEventListener('click', function () {
+    var ta = $('editTa'), m = $('editMsg'); if (!ta) return;
+    var t = ta.value.replace(/[\r\n]+/g, '').replace(/^\s+|\s+$/g, '').slice(0, 60);
+    if (!t) { if (m) m.textContent = '句を書いてから、押してください。'; ta.focus(); return; }
+    var same = (t === src.text && src.mark) ? src.mark : function () {};
+    closeM($('editModal'));
+    capture(t, same, src.w);
+  });
+  var sfb = $('selfBtn'); if (sfb) sfb.addEventListener('click', function () { openEditor('', '自分で一から詠む', null, ''); });
 
   /* ---- パスコード ---- */
   function hasCode() { return !!load(KP, ''); }
